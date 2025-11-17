@@ -75,25 +75,58 @@ const props = defineProps({
 });
 
 const data = computed(() => {
-  return props.fieldData || {
-    fieldAmount: '2',
-    fieldType: 'Loamy Soil',
-    cropName: 'Rice',
-    soilReport: {
-      date: 'On: 15 Jun, 2023',
-      n: '50',
-      p: '10',
-      k: '12'
-    },
-    fertilizer: {
-      date: 'On: 15 Jun, 2023',
-      urea: '10kg',
-      potassium: '5kg'
-    },
-    cropPlantationDate: 'Thu, 15 Jun, 2023 3:34 am UT',
-    cropHarvestingDate: 'Thu, 15 Jun, 2023 3:37 am UT',
-    marketReleasedDate: 'Thu, 15 Jun, 2023 3:37 am UT'
-  };
+  // Normalize incoming prop so the template can safely read fields
+  const src = props.fieldData;
+  if (!src) {
+    return {
+      fieldAmount: '2',
+      fieldType: 'Loamy Soil',
+      cropName: 'Rice',
+      soilReport: {
+        date: 'On: 15 Jun, 2023',
+        n: '50',
+        p: '10',
+        k: '12'
+      },
+      fertilizer: {
+        date: 'On: 15 Jun, 2023',
+        urea: '10kg',
+        potassium: '5kg'
+      },
+      cropPlantationDate: 'Thu, 15 Jun, 2023 3:34 am UT',
+      cropHarvestingDate: 'Thu, 15 Jun, 2023 3:37 am UT',
+      marketReleasedDate: 'Thu, 15 Jun, 2023 3:37 am UT'
+    };
+  }
+
+  // If the incoming object is a simple soil test (from SoilTestView) it may
+  // have fields like fieldName, soilReport (string) and createAt. Normalize
+  // to the richer shape expected by this view.
+  const isSoilTest = typeof src.soilReport === 'string' || src.fieldName;
+  if (isSoilTest) {
+    return {
+      fieldAmount: src.fieldName || src.fieldAmount || 'N/A',
+      fieldType: src.fieldType || 'Unknown',
+      cropName: src.cropName || '—',
+      soilReport: {
+        date: src.createAt ? `On: ${src.createAt}` : (src.soilReportDate || 'On: N/A'),
+        n: src.soilReport || '—',
+        p: src.p || '—',
+        k: src.k || '—'
+      },
+      fertilizer: {
+        date: src.fertilizerDate || 'On: N/A',
+        urea: src.fertilizer?.urea || '—',
+        potassium: src.fertilizer?.potassium || '—'
+      },
+      cropPlantationDate: src.cropPlantationDate || 'N/A',
+      cropHarvestingDate: src.cropHarvestingDate || 'N/A',
+      marketReleasedDate: src.marketReleasedDate || src.createAt || 'N/A'
+    };
+  }
+
+  // Assume src already has the full shape
+  return src;
 });
 </script>
 
