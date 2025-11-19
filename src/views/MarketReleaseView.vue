@@ -326,7 +326,6 @@ h3 {
   color: #4c6ef5;
 }
 
-/* footer removed */
 
 @media (max-width: 768px) {
   .market-release-view {
