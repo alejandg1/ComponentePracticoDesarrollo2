@@ -75,7 +75,6 @@ const props = defineProps({
 });
 
 const data = computed(() => {
-  // Normalize incoming prop so the template can safely read fields
   const src = props.fieldData;
   if (!src) {
     return {
@@ -99,9 +98,6 @@ const data = computed(() => {
     };
   }
 
-  // If the incoming object is a simple soil test (from SoilTestView) it may
-  // have fields like fieldName, soilReport (string) and createAt. Normalize
-  // to the richer shape expected by this view.
   const isSoilTest = typeof src.soilReport === 'string' || src.fieldName;
   if (isSoilTest) {
     return {
@@ -125,7 +121,6 @@ const data = computed(() => {
     };
   }
 
-  // Assume src already has the full shape
   return src;
 });
 </script>
